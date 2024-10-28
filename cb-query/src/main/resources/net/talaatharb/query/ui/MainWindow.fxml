@@ -22,6 +22,7 @@
                   <Button fx:id="connectButton" defaultButton="true" mnemonicParsing="false" onAction="#connect" text="Connect" />
                   <Button fx:id="fetchButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#fetchUsingQuery" text="Execute query" />
                   <Button fx:id="fetchPreparedButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#fetchUsingQueryAndParameters" text="Execute Prepared query" />
+                  <Button fx:id="fetchWithParametersButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#fetchUsingQueryAndParametersReplaced" text="Execute With Replace" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

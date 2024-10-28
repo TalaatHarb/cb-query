@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class CBQueryUiController implements Initializable {
 	private Label connectionStatus;
 
 
-	private final CBQueryFacade copierFacade;
+	private final CBQueryFacade queryFacade;
 
 	@FXML
 	@Setter(value = AccessLevel.PACKAGE)
@@ -55,6 +56,10 @@ public class CBQueryUiController implements Initializable {
 	@FXML
 	@Setter(value = AccessLevel.PACKAGE)
 	private Button fetchPreparedButton;
+	
+	@FXML
+	@Setter(value = AccessLevel.PACKAGE)
+	private Button fetchWithParametersButton;
 
 	private final ObjectMapper objectMapper;
 
@@ -74,13 +79,13 @@ public class CBQueryUiController implements Initializable {
 
 	public CBQueryUiController() {
 		objectMapper = HelperBeans.buildObjectMapper();
-		copierFacade = HelperBeans.buildCopierFacade(HelperBeans.buildConnectionService(),
+		queryFacade = HelperBeans.buildCopierFacade(HelperBeans.buildConnectionService(),
 				HelperBeans.buildCopierService());
 	}
 
 	@FXML
 	void connect() {
-		final boolean connectionResult = copierFacade.connect();
+		final boolean connectionResult = queryFacade.connect();
 		if (connectionResult) {
 			log.info("Connection Successful...");
 
@@ -91,6 +96,7 @@ public class CBQueryUiController implements Initializable {
 
 			fetchButton.setDisable(false);
 			fetchPreparedButton.setDisable(false);
+			fetchWithParametersButton.setDisable(false);
 
 		} else {
 			log.info("Connection Failed...");
@@ -120,7 +126,7 @@ public class CBQueryUiController implements Initializable {
 	@FXML
 	void fetchUsingQuery() throws IOException {
 		log.info("Fetch data using the query");
-		final String resultString = copierFacade.fetchUsingQuery(queryTextArea.getText());
+		final String resultString = queryFacade.fetchUsingQuery(queryTextArea.getText());
 		result = objectMapper
 				.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
 		resultTextArea.setText(objectMapper.writeValueAsString(result));
@@ -130,15 +136,36 @@ public class CBQueryUiController implements Initializable {
 	void fetchUsingQueryAndParameters() throws IOException {
 		log.info("Fetch data using the query and parameters");
 		
-		final var parameters = Arrays.stream(parametersTextArea.getText().split("\\n")).map(s -> {
+		final var parameters = getQueryParametersAsMap();
+		
+		final String resultString = queryFacade.fetchUsingQuery(queryTextArea.getText(), parameters);
+		result = objectMapper
+				.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
+		resultTextArea.setText(objectMapper.writeValueAsString(result));
+	}
+
+	private Map<String, String> getQueryParametersAsMap() {
+		return Arrays.stream(parametersTextArea.getText().split("\\n")).map(s -> {
 			String[] keyValue = s.split("=");
 			if(keyValue.length != 2) {
 				return null;
 			}
 			return keyValue;
 		}).filter(o -> o != null).collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
+	}
+	
+	@FXML
+	void fetchUsingQueryAndParametersReplaced() throws IOException {
+		log.info("Fetch data using the query and parameters");
 		
-		final String resultString = copierFacade.fetchUsingQuery(queryTextArea.getText(), parameters);
+		var queryString = queryTextArea.getText();
+		final var parameters = getQueryParametersAsMap();
+		
+		for(var kv : parameters.entrySet()) {
+			queryString = queryString.replace('$' + kv.getKey(), "'" + kv.getValue() + "'");
+		}
+		
+		final String resultString = queryFacade.fetchUsingQuery(queryString);
 		result = objectMapper
 				.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
 		resultTextArea.setText(objectMapper.writeValueAsString(result));
