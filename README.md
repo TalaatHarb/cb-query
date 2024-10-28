@@ -4,6 +4,8 @@ A small application to query data from Couchbase
 ## Images
 <img src="./cb-query.PNG">
 
+<img src="./cb-query.gif">
+
 ## usage
 create file src.properties (that contains connection properties) beside the jar or inside root directory
 
