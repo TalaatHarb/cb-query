@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,6 +30,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.talaatharb.query.config.HelperBeans;
 import net.talaatharb.query.facade.CBQueryFacade;
+import net.talaatharb.query.service.SQLSyntaxHighliter;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -65,7 +69,7 @@ public class CBQueryUiController implements Initializable {
 
 	@FXML
 	@Setter(value = AccessLevel.PACKAGE)
-	private TextArea queryTextArea;
+	private CodeArea queryTextArea;
 	
 	@FXML
 	@Setter(value = AccessLevel.PACKAGE)
@@ -176,5 +180,12 @@ public class CBQueryUiController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		log.info("Initializing UI application Main window controller...");
+		
+		queryTextArea.setParagraphGraphicFactory(LineNumberFactory.get(queryTextArea)); // Adds line numbers
+		queryTextArea.setStyle("-fx-font-size: 14;"); // Set font size/style if needed
+
+		queryTextArea.textProperty().addListener((obs, oldText, newText) -> {
+			queryTextArea.setStyleSpans(0, SQLSyntaxHighliter.computeHighlighting(newText));
+        });
 	}
 }
