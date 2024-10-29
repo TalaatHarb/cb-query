@@ -19,10 +19,10 @@
                   <Label fx:id="connectionStatus" alignment="CENTER" maxHeight="10.0" maxWidth="10.0" minHeight="10.0" minWidth="10.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #ffff00;" />
                   <Separator prefWidth="200.0" HBox.hgrow="ALWAYS" />
                   <Button fx:id="editButton" cancelButton="true" mnemonicParsing="false" onAction="#editConnection" text="Edit" />
-                  <Button fx:id="connectButton" defaultButton="true" mnemonicParsing="false" onAction="#connect" text="Connect" />
-                  <Button fx:id="fetchButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#fetchUsingQuery" text="Execute query" />
-                  <Button fx:id="fetchPreparedButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#fetchUsingQueryAndParameters" text="Execute Prepared query" />
-                  <Button fx:id="fetchWithParametersButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#fetchUsingQueryAndParametersReplaced" text="Execute With Replace" />
+                  <Button fx:id="connectButton" mnemonicParsing="false" onAction="#connect" text="Connect" />
+                  <Button fx:id="fetchButton" disable="true" mnemonicParsing="false" onAction="#fetchUsingQuery" text="Execute query" />
+                  <Button fx:id="fetchPreparedButton" disable="true" mnemonicParsing="false" onAction="#fetchUsingQueryAndParameters" text="Execute Prepared query" />
+                  <Button fx:id="fetchWithParametersButton" disable="true" mnemonicParsing="false" onAction="#fetchUsingQueryAndParametersReplaced" text="Execute With Replace" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

@@ -14,19 +14,10 @@ import lombok.RequiredArgsConstructor;
 public class CBQueryServiceImpl implements CBQueryService {
 
 	@Override
-	public boolean deleteWithFilter(CouchbaseTemplate template, String filter) {
-		final QueryResult result = template.getCouchbaseClientFactory().getCluster()
-				.query("DELETE FROM " + template.getBucketName() + " WHERE " + filter);
-		return result != null;
-	}
-
-	@Override
 	public String fetchUsingQuery(CouchbaseTemplate template, String query) {
 		final QueryResult result = template.getCouchbaseClientFactory().getCluster().query(query);
 
-		// Assuming the result is not null and has content
 		if (result != null && !result.rowsAsObject().isEmpty()) {
-			// Convert the result to a String for simplicity
 			return result.rowsAsObject().toString();
 		}
 
@@ -39,9 +30,7 @@ public class CBQueryServiceImpl implements CBQueryService {
 		QueryOptions options = QueryOptions.queryOptions().parameters(JsonObject.from(parameters)).adhoc(false);
 		final QueryResult result = template.getCouchbaseClientFactory().getCluster().query(queryString, options);
 
-		// Assuming the result is not null and has content
 		if (result != null && !result.rowsAsObject().isEmpty()) {
-			// Convert the result to a String for simplicity
 			return result.rowsAsObject().toString();
 		}
 

@@ -108,18 +108,20 @@ public class CBQueryUiController implements Initializable {
 	void editConnection() {
 		log.info("Edit connection");
 		final FXMLLoader loader = new FXMLLoader(getClass().getResource(EDIT_WINDOW_FXML));
-		Scene newScene;
+		Scene editConnectionScene;
 		try {
 			final Parent root = loader.load();
-			newScene = new Scene(root);
+			editConnectionScene = new Scene(root);
+			editConnectionScene.getStylesheets().add(getClass().getResource("../theme.css").toExternalForm());
 		} catch (final IOException ex) {
 			log.error(ex.getMessage());
 			return;
 		}
 
 		final Stage editConnectionWindow = new Stage();
+		editConnectionWindow.setTitle("Edit connection details");
 		editConnectionWindow.initOwner(null);
-		editConnectionWindow.setScene(newScene);
+		editConnectionWindow.setScene(editConnectionScene);
 		editConnectionWindow.showAndWait();
 	}
 
@@ -134,7 +136,7 @@ public class CBQueryUiController implements Initializable {
 	
 	@FXML
 	void fetchUsingQueryAndParameters() throws IOException {
-		log.info("Fetch data using the query and parameters");
+		log.info("Fetch data using the prepared query and parameters");
 		
 		final var parameters = getQueryParametersAsMap();
 		
@@ -151,12 +153,12 @@ public class CBQueryUiController implements Initializable {
 				return null;
 			}
 			return keyValue;
-		}).filter(o -> o != null).collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
+		}).filter(o -> o != null).collect(Collectors.toMap(kv -> kv[0].strip(), kv -> kv[1].stripLeading()));
 	}
 	
 	@FXML
 	void fetchUsingQueryAndParametersReplaced() throws IOException {
-		log.info("Fetch data using the query and parameters");
+		log.info("Fetch data using the query with parameters replaced");
 		
 		var queryString = queryTextArea.getText();
 		final var parameters = getQueryParametersAsMap();

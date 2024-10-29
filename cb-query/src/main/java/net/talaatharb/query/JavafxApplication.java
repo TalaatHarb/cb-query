@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 
 public class JavafxApplication extends Application {
 
-	private static final String CSS_FILE = "ui/theme.css";
+	public static final String CSS_FILE = "ui/theme.css";
 	private static final int HEIGHT = 600;
 	private static final String MAIN_FXML = "ui/MainWindow.fxml";
 	private static final String ICON_FILE = "ui/logo.jpg";
