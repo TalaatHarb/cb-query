@@ -12,9 +12,11 @@ import java.util.stream.Collectors;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -134,7 +136,15 @@ public class CBQueryUiController implements Initializable {
 		log.info("Fetch data using the query");
 		final String resultString = queryFacade.fetchUsingQuery(queryTextArea.getText());
 		result = objectMapper.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
-		resultTextArea.replaceText(objectMapper.writeValueAsString(result));
+		replaceResults();
+	}
+
+	private void replaceResults() throws JsonProcessingException {
+		String resultPrettyString = objectMapper.writeValueAsString(result).replace("\r\n", "\n");
+		String existingText = resultTextArea.getText();
+		if (!resultPrettyString.equals(existingText)) {
+			resultTextArea.replaceText(resultPrettyString);
+		}
 	}
 
 	@FXML
@@ -145,7 +155,7 @@ public class CBQueryUiController implements Initializable {
 
 		final String resultString = queryFacade.fetchUsingQuery(queryTextArea.getText(), parameters);
 		result = objectMapper.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
-		resultTextArea.replaceText(objectMapper.writeValueAsString(result));
+		replaceResults();
 	}
 
 	private Map<String, String> getQueryParametersAsMap() {
@@ -171,7 +181,7 @@ public class CBQueryUiController implements Initializable {
 
 		final String resultString = queryFacade.fetchUsingQuery(queryString);
 		result = objectMapper.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
-		resultTextArea.replaceText(objectMapper.writeValueAsString(result));
+		replaceResults();
 	}
 
 	@Override
@@ -187,7 +197,7 @@ public class CBQueryUiController implements Initializable {
 		resultTextArea.setParagraphGraphicFactory(LineNumberFactory.get(resultTextArea)); // Adds line numbers
 		resultTextArea.setStyle("-fx-font-size: 14;"); // Set font size/style if needed
 
-		resultTextArea.textProperty().addListener((obs, oldText, newText) -> resultTextArea.setStyleSpans(0,
-				JSONSyntaxHighliter.computeHighlighting(newText)));
+		resultTextArea.textProperty().addListener((obs, oldText, newText) -> Platform
+				.runLater(() -> resultTextArea.setStyleSpans(0, JSONSyntaxHighliter.computeHighlighting(newText))));
 	}
 }
