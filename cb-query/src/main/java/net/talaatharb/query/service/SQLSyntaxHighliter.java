@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class SQLSyntaxHighliter {
 	
 	private static final String[] SQL_KEYWORDS = new String[] { "SELECT", "FROM", "WHERE", "INSERT", "UPDATE", "DELETE",
-			"CREATE", "DROP", "ALTER", "JOIN", "ON", "AS", "ANY", "BETWEEN", "CONSTRAINT", "INDEX", "DESC", "ASC", "EXISTS" };
+			"CREATE", "DROP", "ALTER", "JOIN", "ON", "AS", "ANY", "AND", "BETWEEN", "CONSTRAINT", "INDEX", "DESC", "ASC", "EXISTS" };
 
 	private static final String SQL_KEYWORD_PATTERN = "\\b(" + String.join("|", SQL_KEYWORDS) + ")\\b";
 	private static final String STRING_PATTERN = "\"([^\"\\\\]|\\\\.)*\"";

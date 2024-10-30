@@ -30,6 +30,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.talaatharb.query.config.HelperBeans;
 import net.talaatharb.query.facade.CBQueryFacade;
+import net.talaatharb.query.service.JSONSyntaxHighliter;
 import net.talaatharb.query.service.SQLSyntaxHighliter;
 
 @Slf4j
@@ -46,7 +47,6 @@ public class CBQueryUiController implements Initializable {
 	@Setter(value = AccessLevel.PACKAGE)
 	private Label connectionStatus;
 
-
 	private final CBQueryFacade queryFacade;
 
 	@FXML
@@ -56,11 +56,11 @@ public class CBQueryUiController implements Initializable {
 	@FXML
 	@Setter(value = AccessLevel.PACKAGE)
 	private Button fetchButton;
-	
+
 	@FXML
 	@Setter(value = AccessLevel.PACKAGE)
 	private Button fetchPreparedButton;
-	
+
 	@FXML
 	@Setter(value = AccessLevel.PACKAGE)
 	private Button fetchWithParametersButton;
@@ -70,14 +70,14 @@ public class CBQueryUiController implements Initializable {
 	@FXML
 	@Setter(value = AccessLevel.PACKAGE)
 	private CodeArea queryTextArea;
-	
+
 	@FXML
 	@Setter(value = AccessLevel.PACKAGE)
 	private TextArea parametersTextArea;
 
 	@FXML
 	@Setter(value = AccessLevel.PACKAGE)
-	private TextArea resultTextArea;
+	private CodeArea resultTextArea;
 
 	private JsonNode result;
 
@@ -133,59 +133,61 @@ public class CBQueryUiController implements Initializable {
 	void fetchUsingQuery() throws IOException {
 		log.info("Fetch data using the query");
 		final String resultString = queryFacade.fetchUsingQuery(queryTextArea.getText());
-		result = objectMapper
-				.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
-		resultTextArea.setText(objectMapper.writeValueAsString(result));
+		result = objectMapper.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
+		resultTextArea.replaceText(objectMapper.writeValueAsString(result));
 	}
-	
+
 	@FXML
 	void fetchUsingQueryAndParameters() throws IOException {
 		log.info("Fetch data using the prepared query and parameters");
-		
+
 		final var parameters = getQueryParametersAsMap();
-		
+
 		final String resultString = queryFacade.fetchUsingQuery(queryTextArea.getText(), parameters);
-		result = objectMapper
-				.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
-		resultTextArea.setText(objectMapper.writeValueAsString(result));
+		result = objectMapper.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
+		resultTextArea.replaceText(objectMapper.writeValueAsString(result));
 	}
 
 	private Map<String, String> getQueryParametersAsMap() {
 		return Arrays.stream(parametersTextArea.getText().split("\\n")).map(s -> {
 			String[] keyValue = s.split("=");
-			if(keyValue.length != 2) {
+			if (keyValue.length != 2) {
 				return null;
 			}
 			return keyValue;
 		}).filter(o -> o != null).collect(Collectors.toMap(kv -> kv[0].strip(), kv -> kv[1].stripLeading()));
 	}
-	
+
 	@FXML
 	void fetchUsingQueryAndParametersReplaced() throws IOException {
 		log.info("Fetch data using the query with parameters replaced");
-		
+
 		var queryString = queryTextArea.getText();
 		final var parameters = getQueryParametersAsMap();
-		
-		for(var kv : parameters.entrySet()) {
+
+		for (var kv : parameters.entrySet()) {
 			queryString = queryString.replace('$' + kv.getKey(), "'" + kv.getValue() + "'");
 		}
-		
+
 		final String resultString = queryFacade.fetchUsingQuery(queryString);
-		result = objectMapper
-				.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
-		resultTextArea.setText(objectMapper.writeValueAsString(result));
+		result = objectMapper.readTree(new ByteArrayInputStream(resultString.getBytes(StandardCharsets.UTF_8)));
+		resultTextArea.replaceText(objectMapper.writeValueAsString(result));
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		log.info("Initializing UI application Main window controller...");
-		
+
 		queryTextArea.setParagraphGraphicFactory(LineNumberFactory.get(queryTextArea)); // Adds line numbers
 		queryTextArea.setStyle("-fx-font-size: 14;"); // Set font size/style if needed
 
-		queryTextArea.textProperty().addListener((obs, oldText, newText) -> {
-			queryTextArea.setStyleSpans(0, SQLSyntaxHighliter.computeHighlighting(newText));
-        });
+		queryTextArea.textProperty().addListener((obs, oldText, newText) -> queryTextArea.setStyleSpans(0,
+				SQLSyntaxHighliter.computeHighlighting(newText)));
+
+		resultTextArea.setParagraphGraphicFactory(LineNumberFactory.get(resultTextArea)); // Adds line numbers
+		resultTextArea.setStyle("-fx-font-size: 14;"); // Set font size/style if needed
+
+		resultTextArea.textProperty().addListener((obs, oldText, newText) -> resultTextArea.setStyleSpans(0,
+				JSONSyntaxHighliter.computeHighlighting(newText)));
 	}
 }
